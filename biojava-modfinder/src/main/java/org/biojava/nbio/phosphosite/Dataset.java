@@ -31,8 +31,6 @@ import java.nio.file.StandardCopyOption;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
-
-import org.biojava.nbio.structure.align.util.AtomCache;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
