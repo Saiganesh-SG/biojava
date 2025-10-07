@@ -1,4 +1,4 @@
-name: "ASPM-RUNNER-ACCOUNT-1"
+name: "ASPM-RUNNER"
 on:
   pull_request:
     branches:
@@ -19,8 +19,8 @@ jobs:
     runs-on: "ubuntu-latest"
     env:
       workdir: "${{ github.workspace }}/wrkdir"
-      ACCOUNT_ID: "1"
-      CONNECTOR_ID: "8436"
+      ACCOUNT_ID: "5005"
+      CONNECTOR_ID: "4225"
       XDG_CONFIG_HOME: "${{ github.workspace }}/wrkdir/.config"
       SECURIN_LOG_DIR: "${{ github.workspace }}/wrkdir/logs"
 
@@ -40,8 +40,8 @@ jobs:
         run: |
           # Fetch and configure AWS credentials
           echo "Fetching AWS credentials..."
-          RESPONSE=$(curl -s -H "x-user-id: -1" -H "x-api-key: ${{ env.API_KEY }}" \
-            "https://slresultapi.qa.securin.io/resultapi/api/v1/accounts/${{ env.ACCOUNT_ID }}/aws/_token")
+          RESPONSE=$(curl -s -H "API_KEY: ${{ secrets.UAT_API_KEY }}" \
+            "https://apigateway.uat.securin.io/resultapi/api/v1/accounts/${{ env.ACCOUNT_ID }}/aws/_token")
           
           ACCESS_KEY=$(echo "$RESPONSE" | jq -r '.accessKey')
           SECRET_KEY=$(echo "$RESPONSE" | jq -r '.secretKey')
@@ -57,7 +57,7 @@ jobs:
           aws configure set region "us-west-2"
           
           # Download runner
-          SCANNER_URL="s3://securin-qa-shiftleft/scanners/securin-cli/2.0.1/securin-runner"
+          SCANNER_URL="s3://securin-uat-shiftleft/scanners/securin-cli/2.0.1/securin-runner"
           aws s3 cp "$SCANNER_URL" "${{ env.workdir }}/src/ASPMRunner"
           chmod +x "${{ env.workdir }}/src/ASPMRunner"
           
@@ -74,7 +74,7 @@ jobs:
           touch "${{ env.workdir }}/logs/securin-cli.log"
           chmod 666 "${{ env.workdir }}/logs/securin-cli.log"
           
-          ./ASPMRunner scan --connector_id "${{ env.CONNECTOR_ID }}" --account_id "${{ env.ACCOUNT_ID }}" --api_key "${{ secrets.API_KEY }}" --scan_type SCA,SECRETS,CONTAINER,IAC,MCP
+          ./ASPMRunner scan --connector_id "${{ env.CONNECTOR_ID }}" --account_id "${{ env.ACCOUNT_ID }}" --api_key "${{ secrets.UAT_API_KEY }}" --scan_type SCA,SECRETS,CONTAINER,IAC,MCP
 
       - name: Upload Results
         uses: actions/upload-artifact@v4
